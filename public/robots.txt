@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://volta-3d-landing.vercel.app/sitemap.xml
