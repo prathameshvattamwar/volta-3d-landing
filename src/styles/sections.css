@@ -146,39 +146,6 @@ main,
   font-weight: 500;
 }
 
-.scroll-indicator {
-  position: absolute;
-  left: 50%;
-  bottom: var(--gutter);
-  transform: translateX(-50%);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 10px;
-  font-size: 0.72rem;
-  font-weight: 700;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-}
-.scroll-indicator__line {
-  position: relative;
-  width: 1.5px;
-  height: 48px;
-  background: color-mix(in srgb, currentColor 25%, transparent);
-  overflow: hidden;
-}
-.scroll-indicator__line::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: currentColor;
-  animation: scroll-line 1.8s var(--ease-out) infinite;
-}
-@keyframes scroll-line {
-  0% { transform: translateY(-100%); }
-  60%, 100% { transform: translateY(100%); }
-}
-
 /* ============================================================
    2. SPIN REVEAL
    ============================================================ */
@@ -484,7 +451,7 @@ main,
 .cta {
   height: 100vh;
   height: 100svh;
-  min-height: 620px;
+  min-height: 720px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -497,7 +464,7 @@ main,
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 16px;
+  gap: 14px;
 }
 .cta__title {
   font-family: var(--font-display);
@@ -511,16 +478,114 @@ main,
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 18px;
+  gap: 16px;
 }
 .cta__body {
-  max-width: 40ch;
+  max-width: 44ch;
   font-weight: 500;
 }
 .cta__note {
   font-size: 0.85rem;
   font-weight: 500;
-  opacity: 0.8;
+  opacity: 0.85;
+}
+
+/* Drag / swipe to spin the product */
+.cta__spin {
+  position: relative;
+  flex: 1;
+  align-self: stretch;
+  min-height: 120px;
+  touch-action: pan-y; /* vertical swipes still scroll the page */
+  user-select: none;
+  -webkit-user-select: none;
+}
+.cta__hint {
+  position: absolute;
+  left: 50%;
+  bottom: 4px;
+  transform: translateX(-50%);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 14px;
+  border-radius: var(--radius);
+  background: color-mix(in srgb, var(--fg) 8%, transparent);
+  border: 1px solid color-mix(in srgb, var(--fg) 25%, transparent);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  transition: opacity 0.5s var(--ease-out);
+}
+.cta__hint-arrows {
+  letter-spacing: 0;
+  animation: hint-nudge 1.8s var(--ease-out) infinite;
+}
+@keyframes hint-nudge {
+  0%, 100% { transform: translateX(0); }
+  50% { transform: translateX(4px); }
+}
+.cta__spin.is-used .cta__hint {
+  opacity: 0;
+}
+
+/* Size picker */
+.sizes {
+  border: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+.sizes__label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+.sizes__list {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+}
+.size {
+  position: relative;
+}
+.size input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+.size span {
+  display: grid;
+  place-items: center;
+  min-width: 46px;
+  height: 46px;
+  padding: 0 10px;
+  border-radius: 12px;
+  border: 1.5px solid color-mix(in srgb, var(--fg) 35%, transparent);
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 1rem;
+  transition: background 0.3s, color 0.3s, border-color 0.3s, transform 0.3s var(--ease-out);
+}
+.size:hover span {
+  border-color: var(--fg);
+  transform: translateY(-2px);
+}
+.size input:checked + span {
+  background: var(--fg);
+  color: var(--bg);
+  border-color: var(--fg);
+}
+.size input:focus-visible + span {
+  outline: 3px solid var(--fg);
+  outline-offset: 3px;
 }
 
 /* ============================================================
@@ -602,14 +667,11 @@ main,
     flex-direction: column;
     align-items: flex-start;
     gap: 20px;
-    padding-bottom: 64px;
   }
   .hero__tagline { font-size: clamp(2.6rem, 12vw, 4rem); }
   /* Brand word sits higher so the product overlaps only its lower half */
   .backdrop__hero { place-items: start center; padding: 25vh 0 0; }
   .hero__meta { align-items: flex-start; text-align: left; }
-  .scroll-indicator { left: auto; right: var(--gutter); transform: none; }
-  .scroll-indicator__line { height: 36px; }
 
   .intro { height: 200vh; }
   .callouts { height: 360vh; }
@@ -654,6 +716,9 @@ main,
   .spec__value { font-size: clamp(2.6rem, 13vw, 4rem); }
 
   .cta__title { font-size: clamp(3rem, 15vw, 5rem); }
+  .cta__body { font-size: 0.95rem; }
+  .size span { min-width: 42px; height: 42px; }
+  .sizes__list { gap: 6px; }
 
   .footer__grid { grid-template-columns: 1fr 1fr; }
   .footer__legal { flex-direction: column; }

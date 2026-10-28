@@ -134,7 +134,7 @@ export function initScroll({ stage, env, lenis }) {
     const layersEnd = { ...layersOut, ry: -0.3, rz: -0.42 };
     const specs = pose({ px: m ? 0 : 2.55, py: m ? 3.8 : 0.1, rx: 0.25, ry: -0.2, rz: 0.12, s: m ? 0.6 : 0.78, bg: ACCENT_COLOR, color: PRIMARY_COLOR });
     const ctaAir = pose({ py: m ? 1.4 : 1.3, rx: -0.25, ry: -0.9, rz: 0.25, s: m ? 0.88 : 0.95, shadow: 0.2 });
-    const cta = pose({ py: m ? 0.08 : -0.1, rx: 0.1, ry: -0.5, rz: 0.05, s: m ? 0.98 : 1.0, shadow: 1 });
+    const cta = pose({ py: m ? 0.08 : 0.1, rx: 0.1, ry: -0.5, rz: 0.05, s: m ? 0.98 : 0.95, shadow: 1 });
 
     // Keep rotations continuous (no backwards unwinding), except the deliberate 360° spin
     const chain = [hero, intro, ...callouts, ...colorways, layersIn, layersOut, layersEnd, specs, ctaAir, cta];
@@ -384,7 +384,7 @@ export function initScroll({ stage, env, lenis }) {
 
   // 7. CTA — headline rises, outlined brand fades in behind the product
   gsap.fromTo('.cta__title .word', { yPercent: rm ? 0 : 110, autoAlpha: rm ? 0 : 1 }, { yPercent: 0, autoAlpha: 1, stagger: 0.08, ease: 'power3.out', ...scrub('.cta', 'top 80%', 'top 20%') });
-  gsap.fromTo('.cta__top .eyebrow, .cta__bottom > *', { autoAlpha: 0, y: Y(30) }, { autoAlpha: 1, y: 0, stagger: 0.08, ease: 'power2.out', ...scrub('.cta', 'top 40%', 'top -5%') });
+  gsap.fromTo('.cta__top .eyebrow, .cta__body, .cta__hint, .cta__bottom > *', { autoAlpha: 0, y: Y(30) }, { autoAlpha: 1, y: 0, stagger: 0.06, ease: 'power2.out', ...scrub('.cta', 'top 45%', 'top 2%') });
   gsap.fromTo('.backdrop__cta', { autoAlpha: 0, scale: rm ? 1 : 1.15 }, { autoAlpha: 1, scale: 1, ease: 'none', ...scrub('.cta', 'top 60%', 'top top') });
 
   // Nav turns light over the dark footer

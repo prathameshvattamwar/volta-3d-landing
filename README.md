@@ -28,8 +28,12 @@ export const TAGLINE = 'Built for the bold.';
 export const PRIMARY_COLOR = '#FFD600';      // main background
 export const ACCENT_COLOR = '#FF3D00';       // second bold color
 export const DARK_COLOR = '#0A0A0A';         // text color
-export const COLOR_VARIANTS = ['#FFD600', '#FF3D00', '#00E5FF', '#B4FF00'];
+export const COLOR_VARIANTS = ['#FFD600', '#3346FF', '#F7C6D9', '#B4FF00']; // Solar, Cobalt, Arctic Pink, Acid
+export const CURRENCY = { symbol: '₹', code: 'INR', locale: 'en-IN' };      // prices show as ₹14,999
 ```
+
+Prices live in `src/copy.js` (`price: 14999`); the EMI line (price ÷ 6) and UK size picker are generated from it.
+Colorway names are generated from the hex codes automatically (e.g. `#3346FF` → "Cobalt").
 
 Save — the page reloads with new copy, colors and a matching procedural 3D model.
 `sneaker`, `headphones` and `watch` have hand-written copy and their own procedural models; any other

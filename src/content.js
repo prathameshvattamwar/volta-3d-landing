@@ -3,7 +3,7 @@
  * Runs at BUILD time (via the Vite plugin in vite.config.js), so the final HTML
  * is static, SEO-friendly and paints instantly — no JS needed to see the text.
  */
-import { PRIMARY_COLOR, ACCENT_COLOR, DARK_COLOR, SITE_URL } from './config.js';
+import { PRIMARY_COLOR, ACCENT_COLOR, DARK_COLOR, SITE_URL, CURRENCY } from './config.js';
 import { COPY } from './copy.js';
 
 const esc = (s) =>
@@ -35,6 +35,7 @@ export function renderHead() {
     <meta name="theme-color" content="${PRIMARY_COLOR}" />
     <link rel="canonical" href="${SITE_URL}/" />
     <meta property="og:type" content="website" />
+    <meta property="og:locale" content="${CURRENCY.locale.replace('-', '_')}" />
     <meta property="og:site_name" content="${esc(COPY.brand)}" />
     <meta property="og:title" content="${esc(title)}" />
     <meta property="og:description" content="${d}" />
@@ -54,7 +55,7 @@ export function renderHead() {
       brand: { '@type': 'Brand', name: COPY.brandTitle },
       description: COPY.meta.description,
       image: `${SITE_URL}/images/og.jpg`,
-      offers: { '@type': 'Offer', price: COPY.price, priceCurrency: 'USD', availability: 'https://schema.org/InStock' },
+      offers: { '@type': 'Offer', price: COPY.price, priceCurrency: CURRENCY.code, availability: 'https://schema.org/InStock' },
     })}</script>
     <style>:root{--primary:${PRIMARY_COLOR};--accent:${ACCENT_COLOR};--dark:${DARK_COLOR};--bg:${PRIMARY_COLOR};--fg:${DARK_COLOR}}</style>
     <script>document.documentElement.classList.add('js')</script>`;
@@ -123,11 +124,8 @@ export function renderBody() {
         <p class="hero__tagline" aria-hidden="true">${splitWords(c.tagline)}</p>
         <div class="hero__meta" data-hero-fade>
           <p class="hero__note">${esc(c.heroNote)}</p>
-          <a class="btn btn--dark" href="#shop" data-magnetic><span class="btn__label">Shop ${esc(c.modelName)} — $${c.price}</span>${arrow}</a>
+          <a class="btn btn--dark" href="#shop" data-magnetic><span class="btn__label">Shop ${esc(c.modelName)} — ${c.priceLabel}</span>${arrow}</a>
         </div>
-      </div>
-      <div class="scroll-indicator" data-hero-fade aria-hidden="true">
-        <span>Scroll</span><span class="scroll-indicator__line"></span>
       </div>
     </section>
 
@@ -227,13 +225,32 @@ export function renderBody() {
       <div class="cta__top">
         <p class="eyebrow">${esc(c.fullName)} · ${esc(c.category)}</p>
         <h2 id="cta-title" class="cta__title">${splitWords(c.cta.title)}</h2>
+        <p class="cta__body">${esc(c.cta.body)}</p>
+      </div>
+      <!-- Drag / swipe here to spin the product -->
+      <div class="cta__spin" data-spin data-cursor="drag" aria-hidden="true">
+        <span class="cta__hint"><span class="cta__hint-arrows">←→</span> <span data-hint-text>Drag to spin</span></span>
       </div>
       <div class="cta__bottom">
-        <p class="cta__body">${esc(c.cta.body)}</p>
+        ${
+          c.sizes
+            ? `<fieldset class="sizes">
+          <legend class="sizes__label">Select size (${esc(c.sizes.label)})</legend>
+          <div class="sizes__list">
+            ${c.sizes.options
+              .map(
+                (s) =>
+                  `<label class="size"><input type="radio" name="size" value="${s}"${s === c.sizes.default ? ' checked' : ''} /><span>${s}</span></label>`
+              )
+              .join('')}
+          </div>
+        </fieldset>`
+            : ''
+        }
         <a class="btn btn--xl" href="#shop" data-magnetic data-add-to-cart>
-          <span class="btn__label">${esc(c.cta.button)} — $${c.price}</span>${arrow}
+          <span class="btn__label">${esc(c.cta.button)} — ${c.priceLabel}</span>${arrow}
         </a>
-        <p class="cta__note">${esc(c.cta.note)}</p>
+        <p class="cta__note">or ${c.emiLabel} with no-cost EMI · ${esc(c.cta.note)}</p>
       </div>
     </section>
   </main>
@@ -263,7 +280,8 @@ export function renderBody() {
     </div>
   </footer>
 
-  <div class="cursor" aria-hidden="true"><span class="cursor__ring"></span><span class="cursor__dot"></span></div>
+  <div class="toast" role="status" aria-live="polite" data-toast></div>
+  <div class="cursor" aria-hidden="true"><span class="cursor__ring"><span class="cursor__label">Drag</span></span><span class="cursor__dot"></span></div>
   <div class="grain" aria-hidden="true"></div>
   <noscript><style>.preloader{display:none}.char,.word{transform:none!important}</style></noscript>`;
 }

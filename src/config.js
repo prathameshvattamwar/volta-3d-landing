@@ -20,8 +20,11 @@ export const TAGLINE = 'Built for the bold.';
 export const PRIMARY_COLOR = '#FFD600'; // bold background color
 export const ACCENT_COLOR = '#FF3D00'; // second bold color
 export const DARK_COLOR = '#0A0A0A'; // text / contrast color
-export const COLOR_VARIANTS = ['#FFD600', '#FF3D00', '#00E5FF', '#B4FF00']; // colorways shown while scrolling
+export const COLOR_VARIANTS = ['#FFD600', '#3346FF', '#F7C6D9', '#B4FF00']; // colorways: Solar, Cobalt, Arctic Pink, Acid
 export const REPO_NAME = 'volta-3d-landing';
+
+// Region: currency + number formatting for prices (₹14,999 in en-IN)
+export const CURRENCY = { symbol: '₹', code: 'INR', locale: 'en-IN' };
 // =====================================================
 
 /** Public URL of the deployed site (used for Open Graph / canonical tags). */

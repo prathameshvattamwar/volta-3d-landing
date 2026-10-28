@@ -116,6 +116,22 @@ export function createStage(container, env) {
     });
   }
 
+  // ---------- Drag-to-spin (final CTA) ----------
+  // value = extra Y rotation from the user; it glides with inertia and unwinds when disabled.
+  const spin = { value: 0, velocity: 0, dragging: false, enabled: false };
+  function updateSpin() {
+    if (!spin.dragging) {
+      spin.value += spin.velocity;
+      spin.velocity *= env.reducedMotion ? 0 : 0.94;
+    }
+    if (!spin.enabled && !spin.dragging) {
+      // Take the shortest way back to the designed pose
+      spin.value = Math.atan2(Math.sin(spin.value), Math.cos(spin.value)) * 0.88;
+      spin.velocity = 0;
+      if (Math.abs(spin.value) < 1e-4) spin.value = 0;
+    }
+  }
+
   // ---------- Render loop (driven by GSAP's ticker, shared with Lenis + ScrollTrigger) ----------
   let active = true; // false when the tab is hidden or the stage is scrolled off-screen
   let needsRender = true;
@@ -148,7 +164,7 @@ export function createStage(container, env) {
     pivot.position.y = float * (1 - pose.explode * 0.5);
     pivot.rotation.set(
       pose.rx + mouse.sy * 0.12 + floatRot,
-      pose.ry + mouse.sx * 0.25 - (1 - e) * 1.2,
+      pose.ry + mouse.sx * 0.25 - (1 - e) * 1.2 + spin.value,
       pose.rz + floatRot * 0.5
     );
 
@@ -182,6 +198,7 @@ export function createStage(container, env) {
 
   function tick(time) {
     if (!active || !product) return;
+    updateSpin();
     applyPose(time);
     for (const fn of beforeRender) fn();
     if (!changed() && !needsRender) return;
@@ -242,6 +259,7 @@ export function createStage(container, env) {
       return entrance;
     },
     onBeforeRender: (fn) => beforeRender.push(fn),
+    spin,
     invalidate: () => (needsRender = true),
     fovRad: (FOV * Math.PI) / 180,
   };

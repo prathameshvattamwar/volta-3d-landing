@@ -10,7 +10,7 @@
  *              dir  = direction (in world space) the camera looks from
  *              dist = camera distance from the part
  */
-import { PRODUCT, BRAND_NAME, TAGLINE, COLOR_VARIANTS } from './config.js';
+import { PRODUCT, BRAND_NAME, TAGLINE, COLOR_VARIANTS, CURRENCY } from './config.js';
 
 const cap = (s) => s.charAt(0).toUpperCase() + s.slice(1);
 const brandTitle = cap(BRAND_NAME.toLowerCase());
@@ -19,7 +19,8 @@ const PRESETS = {
   sneaker: (b) => ({
     modelName: 'Surge 01',
     category: 'Performance runner',
-    price: 189,
+    price: 14999,
+    sizes: { label: 'UK', options: [6, 7, 8, 9, 10, 11, 12], default: 8 },
     heroEyebrow: 'New drop — Surge 01',
     heroNote: 'Ultralight knit. Supercharged foam. Zero compromise.',
     intro: {
@@ -67,7 +68,7 @@ const PRESETS = {
       eyebrow: '05 — By the numbers',
       title: "The numbers don't lie.",
       items: [
-        { value: 212, suffix: 'g', label: 'Weight, men’s US 9' },
+        { value: 212, suffix: 'g', label: 'Weight, men’s UK 8' },
         { value: 87, suffix: '%', label: 'Energy return' },
         { value: 36, suffix: 'mm', label: 'Heel stack height' },
         { value: 8, suffix: 'mm', label: 'Heel-to-toe drop' },
@@ -77,9 +78,9 @@ const PRESETS = {
     },
     cta: {
       title: 'Your next move.',
-      body: 'Free express shipping and 30-day test runs. Not faster? Send them back.',
+      body: 'Free express delivery across India and 30-day test runs. Not faster? Send them back.',
       button: 'Get yours',
-      note: 'Sizes US 4 – 15 · Ships in 24h',
+      note: 'Free delivery · 30-day returns · Ships in 24h',
     },
     meta: {
       description: `${b} Surge 01 — the ultralight performance sneaker with an AeroKnit upper and VoltCell heel. ${TAGLINE}`,
@@ -89,7 +90,7 @@ const PRESETS = {
   headphones: (b) => ({
     modelName: 'Pulse ANC',
     category: 'Wireless headphones',
-    price: 349,
+    price: 29990,
     heroEyebrow: 'New — Pulse ANC',
     heroNote: 'Studio sound. Total silence. 60 hours of battery.',
     intro: {
@@ -147,7 +148,7 @@ const PRESETS = {
     },
     cta: {
       title: 'Turn the world down.',
-      body: 'Free express shipping and a 30-day listening trial.',
+      body: 'Free express delivery across India and a 30-day listening trial.',
       button: 'Get yours',
       note: 'Two-year warranty · Ships in 24h',
     },
@@ -159,7 +160,7 @@ const PRESETS = {
   watch: (b) => ({
     modelName: 'Chrono 01',
     category: 'Smart chronograph',
-    price: 429,
+    price: 34999,
     heroEyebrow: 'New — Chrono 01',
     heroNote: 'Sapphire. Titanium. Two weeks of battery.',
     intro: {
@@ -217,7 +218,7 @@ const PRESETS = {
     },
     cta: {
       title: 'Make every second count.',
-      body: 'Free express shipping and 30-day returns.',
+      body: 'Free express delivery across India and 30-day returns.',
       button: 'Get yours',
       note: 'Two-year warranty · Ships in 24h',
     },
@@ -231,7 +232,7 @@ const PRESETS = {
 const generic = (b, p) => ({
   modelName: 'One',
   category: cap(p),
-  price: 199,
+  price: 9999,
   heroEyebrow: `New — ${b} One`,
   heroNote: `The ${p} we always wanted. So we built it.`,
   intro: {
@@ -266,7 +267,7 @@ const generic = (b, p) => ({
       { value: 1, suffix: 'M+', label: 'Happy owners' },
     ],
   },
-  cta: { title: 'Make it yours.', body: 'Free express shipping and 30-day returns.', button: 'Get yours', note: 'Ships in 24h' },
+  cta: { title: 'Make it yours.', body: 'Free express delivery across India and 30-day returns.', button: 'Get yours', note: 'Ships in 24h' },
   meta: { description: `${b} One — the ${p}, reimagined. ${TAGLINE}` },
 });
 
@@ -281,17 +282,22 @@ export function colorName(hex) {
   else if (max === g) h = (bl - r) / d + 2;
   else h = (r - g) / d + 4;
   h = (h * 60 + 360) % 360;
-  const names = [
-    [12, 'Ember'], [35, 'Blaze'], [55, 'Solar'], [80, 'Acid'], [150, 'Volt Green'],
-    [200, 'Glacier'], [250, 'Cobalt'], [290, 'Ultra Violet'], [335, 'Flare'], [360, 'Ember'],
-  ];
+  const pastel = l > 0.75;
+  const names = pastel
+    ? [[20, 'Coral Mist'], [55, 'Butter'], [80, 'Lime Ice'], [170, 'Mint'], [215, 'Sky'], [255, 'Periwinkle'], [300, 'Lilac'], [345, 'Arctic Pink'], [360, 'Coral Mist']]
+    : [[12, 'Ember'], [35, 'Blaze'], [55, 'Solar'], [80, 'Acid'], [150, 'Volt Green'], [200, 'Glacier'], [250, 'Cobalt'], [290, 'Ultra Violet'], [335, 'Flare'], [360, 'Ember']];
   return names.find(([max]) => h < max)[1];
 }
 
 const preset = (PRESETS[PRODUCT.toLowerCase()] || ((b) => generic(b, PRODUCT.toLowerCase())))(brandTitle);
 
+/** Format a price for the configured region, e.g. ₹14,999. */
+export const formatPrice = (n) => `${CURRENCY.symbol}${Math.round(n).toLocaleString(CURRENCY.locale)}`;
+
 export const COPY = {
   ...preset,
+  priceLabel: formatPrice(preset.price),
+  emiLabel: `${formatPrice(Math.ceil(preset.price / 6 / 10) * 10)}/month`, // 6-month no-cost EMI
   brand: BRAND_NAME,
   brandTitle,
   product: PRODUCT.toLowerCase(),

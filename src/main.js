@@ -12,7 +12,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { initLenis } from './js/lenis.js';
 import { createPreloader } from './js/preloader.js';
 import { initScroll, playIntro } from './js/scroll.js';
-import { initCursor, initMagnetic, initNav, initAnchors, initCart } from './js/ui.js';
+import { initCursor, initMagnetic, initNav, initAnchors, initCart, initSpin } from './js/ui.js';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -95,6 +95,7 @@ async function boot() {
   modelDone(1);
 
   const scroll = initScroll({ stage, env, lenis });
+  initSpin(stage, env);
 
   // ONE loop: Lenis (added first in initLenis) → scroll pose → render
   gsap.ticker.add((time) => {

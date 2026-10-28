@@ -3,8 +3,11 @@
  * smooth anchor links and the cart counter.
  */
 import { gsap } from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { COPY } from '../copy.js';
 
-const INTERACTIVE = 'a, button, [data-cursor]';
+const INTERACTIVE = 'a, button, label';
+const DRAG = '[data-cursor="drag"]';
 
 /** Circle cursor that grows over links/buttons. Desktop (fine pointer) only. */
 export function initCursor(env) {
@@ -35,10 +38,12 @@ export function initCursor(env) {
     { passive: true }
   );
   document.addEventListener('pointerover', (e) => {
+    el.classList.toggle('is-drag', !!e.target.closest?.(DRAG));
     if (e.target.closest?.(INTERACTIVE)) el.classList.add('is-hover');
   });
   document.addEventListener('pointerout', (e) => {
     if (e.target.closest?.(INTERACTIVE) && !e.relatedTarget?.closest?.(INTERACTIVE)) el.classList.remove('is-hover');
+    if (!e.relatedTarget?.closest?.(DRAG)) el.classList.remove('is-drag');
   });
   document.documentElement.addEventListener('pointerleave', () => el.classList.add('is-hidden'));
 }
@@ -107,11 +112,13 @@ export function initAnchors(lenis, env) {
   });
 }
 
-/** "Get yours" adds to the cart with a little bump. */
+/** "Get yours" adds the selected size to the cart: badge bump + toast. */
 export function initCart(env) {
   const countEl = document.querySelector('[data-cart-count]');
   const cart = document.querySelector('[data-cart]');
+  const toast = document.querySelector('[data-toast]');
   let count = 0;
+  let hideTimer;
   document.querySelectorAll('[data-add-to-cart]').forEach((btn) =>
     btn.addEventListener('click', (e) => {
       e.preventDefault();
@@ -120,6 +127,62 @@ export function initCart(env) {
       countEl.textContent = count;
       cart.setAttribute('aria-label', `Cart, ${count} item${count === 1 ? '' : 's'}`);
       if (!env.reducedMotion) gsap.fromTo(cart, { scale: 1.35 }, { scale: 1, duration: 0.7, ease: 'elastic.out(1, 0.35)' });
+
+      const size = document.querySelector('input[name="size"]:checked')?.value;
+      const sizeText = size ? ` · ${COPY.sizes.label} ${size}` : '';
+      toast.innerHTML = `<span class="toast__dot" aria-hidden="true"></span><span>Added <strong></strong>${sizeText} to your bag</span>`;
+      toast.querySelector('strong').textContent = COPY.fullName;
+      toast.classList.add('is-visible');
+      clearTimeout(hideTimer);
+      hideTimer = setTimeout(() => toast.classList.remove('is-visible'), 2800);
     })
   );
+}
+
+/**
+ * Drag (mouse) or swipe (touch) across the final section to spin the product.
+ * Only active while the CTA section is on screen; the product unwinds when you leave.
+ */
+export function initSpin(stage, env) {
+  const zone = document.querySelector('[data-spin]');
+  if (!zone || !stage) return;
+  const hint = zone.querySelector('[data-hint-text]');
+  if (env.isTouch) hint.textContent = 'Swipe to spin';
+  const { spin } = stage;
+
+  ScrollTrigger.create({
+    trigger: '.cta',
+    start: 'top 25%',
+    end: 'bottom top',
+    onToggle: (self) => (spin.enabled = self.isActive),
+  });
+
+  let lastX = 0, lastT = 0, pointer = null;
+  zone.addEventListener('pointerdown', (e) => {
+    if (!spin.enabled) return;
+    pointer = e.pointerId;
+    zone.setPointerCapture(pointer);
+    spin.dragging = true;
+    spin.velocity = 0;
+    lastX = e.clientX;
+    lastT = performance.now();
+    zone.classList.add('is-used');
+  });
+  zone.addEventListener('pointermove', (e) => {
+    if (e.pointerId !== pointer) return;
+    const now = performance.now();
+    const delta = ((e.clientX - lastX) / window.innerWidth) * Math.PI * 2.2; // full-width drag ≈ one turn
+    spin.value += delta;
+    spin.velocity = (delta / Math.max(now - lastT, 8)) * 16; // per-frame speed for the glide
+    lastX = e.clientX;
+    lastT = now;
+  });
+  const release = (e) => {
+    if (e.pointerId !== pointer) return;
+    pointer = null;
+    spin.dragging = false;
+    if (performance.now() - lastT > 80) spin.velocity = 0; // paused before letting go → no glide
+  };
+  zone.addEventListener('pointerup', release);
+  zone.addEventListener('pointercancel', release);
 }
